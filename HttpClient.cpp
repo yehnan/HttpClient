@@ -58,6 +58,10 @@ void HttpClient::beginRequest()
 
 int HttpClient::startRequest(const char* aServerName, uint16_t aServerPort, const char* aURLPath, const char* aHttpMethod, const char* aUserAgent)
 {
+    // 20140414 start yehnan
+    beginRequest();
+    // 20140414 end yehnan
+    
     tHttpState initialState = iState;
     if ((eIdle != iState) && (eRequestStarted != iState))
     {
@@ -101,6 +105,10 @@ int HttpClient::startRequest(const char* aServerName, uint16_t aServerPort, cons
 
 int HttpClient::startRequest(const IPAddress& aServerAddress, const char* aServerName, uint16_t aServerPort, const char* aURLPath, const char* aHttpMethod, const char* aUserAgent)
 {
+    // 20140414 start yehnan
+    beginRequest();
+    // 20140414 end yehnan
+
     tHttpState initialState = iState;
     if ((eIdle != iState) && (eRequestStarted != iState))
     {
@@ -195,9 +203,12 @@ int HttpClient::sendInitialHeaders(const char* aServerName, IPAddress aServerIP,
     {
         sendHeader(HTTP_HEADER_USER_AGENT, kUserAgent);
     }
+    
+    // 20140414 start yehnan, move to finishHeaders
     // We don't support persistent connections, so tell the server to
     // close this connection after we're done
-    sendHeader(HTTP_HEADER_CONNECTION, "close");
+    // // sendHeader(HTTP_HEADER_CONNECTION, "close");
+    // 20140414 end yehnan, move to finishHeaders
 
     // Everything has gone well
     iState = eRequestStarted;
@@ -274,10 +285,19 @@ void HttpClient::sendBasicAuth(const char* aUser, const char* aPassword)
 
 void HttpClient::finishHeaders()
 {
+    // 2014.04.14 start, yehnan
+    sendHeader(HTTP_HEADER_CONNECTION, "close");
+    // 2014.04.14 end, yehnan
+    
     iClient->println();
     iState = eRequestSent;
 }
-
+// 2014.04.14 start, yehnan
+void HttpClient::finishRequest()
+{
+    endRequest();
+}
+// 2014.04.14 end, yehnan
 void HttpClient::endRequest()
 {
     if (iState < eRequestSent)
